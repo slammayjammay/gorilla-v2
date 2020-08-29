@@ -1,0 +1,35 @@
+{
+  "name": "Gorilla",
+  "version": "1.0",
+  "description": "",
+  "manifest_version": 2,
+  "permissions": ["activeTab", "storage"],
+  "web_accessible_resources": ["node_modules/monaco-editor/min/*"],
+  "icons": {
+    "128": "icon.png"
+  },
+  "browser_action": {
+    "name": "Gorilla",
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "scripts": ["background-script.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "run_at": "document_start",
+      "js": ["built/document-start.js"]
+    },
+    {
+      "matches": ["https://*/*"],
+      "run_at": "document_end",
+      "js": ["built/document-end.js"]
+    },
+    {
+      "matches": ["https://*/*"],
+      "run_at": "document_idle",
+      "js": ["built/document-idle.js"]
+    }
+  ]
+}
