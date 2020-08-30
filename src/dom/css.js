@@ -57,6 +57,28 @@ module.exports = `
 	display: block;
 }
 
+#gorilla .storage-container {
+	position: relative;
+}
+#gorilla .storage-container textarea {
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+#gorilla .about-list {
+	display: block;
+	list-style-type: disc;
+	margin-block-start: 1em;
+	margin-block-end: 1em;
+	margin-inline-start: 0px;
+	margin-inline-end: 0px;
+	padding-inline-start: 40px;
+}
+
 #gorilla button {
 	border: 1px solid #8e8e8e;
 	border-radius: 4px;

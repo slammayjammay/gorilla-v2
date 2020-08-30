@@ -17,18 +17,29 @@ class Storage extends Map {
 	load() {
 		return new Promise(resolve => {
 			eventBus.on('storage-get:done', e => {
-				const json = JSON.parse(e.detail);
-				Object.entries(json).forEach(([key, val]) => this.set(key, val));
+				this.setJSON(JSON.parse(e.detail));
 				resolve();
 			});
 			eventBus.emit('storage-get');
 		});
 	}
 
+	setJSON(json) {
+		Object.entries(json).forEach(([key, val]) => this.set(key, val));
+	}
+
 	save() {
+		eventBus.emit('storage-set', this.toJSONString());
+	}
+
+	toJSONString(...options) {
+		return JSON.stringify(this.toJSON(), ...options);
+	}
+
+	toJSON() {
 		const json = {};
 		this.forEach((val, key) => json[key] = val);
-		eventBus.emit('storage-set', JSON.stringify(json));
+		return json;
 	}
 };
 

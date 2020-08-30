@@ -1,10 +1,10 @@
 {
   "name": "Gorilla",
   "version": "1.0.0",
-  "description": "Create, save, and run JavaScript.",
+  "description": "Create, save, and run scripts in web pages.",
   "main": "src/dom/main/index.js",
   "scripts": {
-    "construct": "npm run setup-assets && npm run build",
+    "create": "npm run setup-assets && npm run build",
     "setup-assets": "mkdir -p ./extension/node_modules/monaco-editor/min/ && cp -r ./node_modules/monaco-editor/min/ ./extension/node_modules/monaco-editor/min/",
     "dev": "NODE_ENV=development npm run build-dom -- -w & npm run build-content -- -w",
     "build": "npm run build-dom && npm run build-content",

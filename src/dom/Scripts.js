@@ -8,13 +8,15 @@ const boilerplate = `function($, $$) {\n\t/* your code here */\n}`;
 
 module.exports = class Scripts {
 	constructor() {
+		this.onDataCopy = this.onDataCopy.bind(this);
+		this.onDataEdit = this.onDataEdit.bind(this);
 		this.onScriptClick = this.onScriptClick.bind(this);
 
 		this.editor = null;
 		this.el = this.createEl();
 		this.addEvents();
 
-		storage.loadOnce().then(() => storage.forEach((_, key) => this.add(key)));
+		storage.loadOnce().then(() => this.updateStorage());
 
 		loadMonaco().then(monaco => {
 			this.editor = monaco.editor.create($('.monaco-container', this.el), {
@@ -42,6 +44,9 @@ module.exports = class Scripts {
 	}
 
 	addEvents() {
+		$('.storage-copy', this.el).addEventListener('click', this.onDataCopy);
+		$('.storage-save', this.el).addEventListener('click', this.onDataEdit);
+
 		$('.scripts-list', this.el).addEventListener('click', this.onScriptClick);
 
 		$('.script-item.create button', this.el).addEventListener('click', () => {
@@ -65,6 +70,8 @@ module.exports = class Scripts {
 			scriptItem.setAttribute('data-script-status', 'error');
 			$('.script-info', this.el).innerHTML = this.formatErrorMessage(name, error);
 		});
+
+		eventBus.on('storage-set:done', () => this.updateStorageText());
 	}
 
 	createEl() {
@@ -76,11 +83,21 @@ module.exports = class Scripts {
 						<summary>About</summary>
 						<p>Create, save, and run scripts on document start, document end, document idle, or on click.</p>
 						<h3><strong>What this bookmarklet does:</strong></h3>
-						<ul>
+						<ul class="about-list">
 							<li>Creates an instance of this bookmarklet and stores under <strong>window._gorilla</strong>.</li>
 							<li>Creates a <strong>&lt;div id="gorilla"&gt;</strong> and prepends to <strong>document.body</strong>.</li>
 							<li>Loads the <a href="https://github.com/microsoft/monaco-editor">Monaco text editor</a> for creating and editing scripts.</li>
 						</ul>
+					</details>
+					<details>
+						<summary>View/Edit extension json</summary>
+						<button class="storage-copy">Copy</button>
+						<button class="storage-save">Save</button>
+						<p><small>(Note: scripts must be <a href="https://developer.mozilla.org/en-US/search?q=encodeuricomponent">URI encoded</a>.)</small></p>
+						<div class="storage-container">
+							<textarea></textarea>
+							<pre class="storage" contenteditable="true"></pre>
+						</div>
 					</details>
 					<ul class="scripts-list">
 						<li class="script-item create">
@@ -143,6 +160,10 @@ module.exports = class Scripts {
 		return dummy.children[0];
 	}
 
+	clear() {
+		Array.from($$('.script-item:not(.create)', this.el)).forEach(el => el.remove());
+	}
+
 	add(name) {
 		const item = this.createItem(name);
 		$('.scripts-list', this.el).append(item);
@@ -172,6 +193,16 @@ module.exports = class Scripts {
 		text && this.editor.setValue(text);
 	}
 
+	updateStorage() {
+		this.clear();
+		storage.forEach((_, key) => this.add(key));
+		this.updateStorageText();
+	}
+
+	updateStorageText() {
+		$('.storage', this.el).textContent = storage.toJSONString(null, 2);
+	}
+
 	onSubmit(e) {
 		e.preventDefault();
 		const data = new FormData(e.currentTarget);
@@ -188,6 +219,27 @@ module.exports = class Scripts {
 			eventBus.emit('scriptCreated', data);
 			this.closeEditing(boilerplate);
 		}
+	}
+
+	onDataCopy() {
+		const textarea = $('.storage-container textarea', this.el);
+		textarea.value = storage.toJSONString(null, 2);
+		textarea.select();
+		document.execCommand('copy');
+	}
+
+	onDataEdit() {
+		let json;
+		try {
+			json = JSON.parse($('.storage', this.el).textContent);
+		} catch(e) {
+			return alert('JSON is not valid.');
+		}
+
+		storage.clear();
+		storage.setJSON(json);
+		storage.save();
+		this.updateStorage();
 	}
 
 	onScriptClick(e) {
