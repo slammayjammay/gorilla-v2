@@ -1,14 +1,17 @@
-const { $, $$ } = require('../../dom/query-selector');
+const { $, $$ } = require('../../helpers/query-selector');
 
 module.exports = (runAt) => {
 	chrome.storage.local.get('gorilla', data => {
-		const json = JSON.parse(data.gorilla || '{}');
-		Object.entries(json).forEach(([name, value]) => {
+		if (!data.gorilla || !data.gorilla.scripts) {
+			return;
+		}
+
+		Object.entries(data.gorilla.scripts).forEach(([name, value]) => {
 			if (runAt === value.runAt) {
 				runScript(value.script);
 			}
 		});
-	})
+	});
 };
 
 function runScript(encodedJS) {

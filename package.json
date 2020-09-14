@@ -5,11 +5,12 @@
   "main": "src/dom/main/index.js",
   "scripts": {
     "create": "npm run setup-assets && npm run build",
-    "setup-assets": "mkdir -p ./extension/node_modules/monaco-editor/min/ && cp -r ./node_modules/monaco-editor/min/ ./extension/node_modules/monaco-editor/min/",
-    "dev": "NODE_ENV=development npm run build-dom -- -w & npm run build-content -- -w",
-    "build": "npm run build-dom && npm run build-content",
-    "build-dom": "webpack",
-    "build-content": "webpack --config webpack-content.config.js"
+    "dev": "NODE_ENV=development TARGETS=background,content,popup webpack -w",
+    "build": "webpack",
+    "build-popup": "TARGETS=popup npm run webpack",
+    "build-content": "TARGETS=content npm run webpack",
+    "build-background": "TARGETS=background npm run webpack",
+    "build-all": "NODE_ENV=production TARGETS=background,content,popup webpack"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,5 @@
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },
-  "dependencies": {
-    "monaco-editor": "^0.20.0"
-  }
+  "dependencies": {}
 }

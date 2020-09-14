@@ -1,36 +1,72 @@
 const css = require('./css');
-const { $, $$ } = require('./query-selector');
+const { $, $$ } = require('../helpers/query-selector');
 const eventBus = require('./event-bus');
 const storage = require('./storage');
-const Window = require('./Window');
+const TabSelection = require('./TabSelection');
 const Scripts = require('./Scripts');
-const generateScript = require('./generate-script');
 
 module.exports = class Gorilla {
 	constructor() {
-		this.$ = $;
-		this.$$ = $$;
-		this.eventBus = eventBus;
-		this.storage = storage;
-
 		this.container = document.getElementById('gorilla');
-		this.container.setAttribute('data-init', '');
-		this.window = new Window();
 		this.scripts = new Scripts();
 
-		$('.resizeable', this.window.el).append(this.scripts.el);
+		this.el = this.createEl();
+		this.container.append(this.el);
 
-		eventBus.on('remove', e => this.remove(e));
 		eventBus.on('scriptCreated', e => this.onScriptCreated(e));
 		eventBus.on('scriptDeleted', e => this.onScriptDeleted(e));
 		eventBus.on('scriptRun', e => this.onScriptRun(e));
+		eventBus.on('close', e => window.close());
+
+		this._isPopup = this._tabSelection = null;
+		this.isPopup().then(bool => {
+			this._isPopup = bool;
+			document.documentElement.classList.add(bool ? 'window' : 'popup');
+			this._isPopup ? this.addPopupHTML() : this.addInlineHTML();
+			eventBus.emit('isPopup');
+		});
 
 		this.inject();
 	}
 
+	createEl() {
+		const dummy = document.createElement('div');
+		dummy.innerHTML = `
+			<div>
+				<h1>Gorilla</h1>
+			</div>
+		`;
+		dummy.children[0].append(this.scripts.el);
+		return dummy.children[0];
+	}
+
+	async isPopup() {
+		return new Promise(resolve => {
+			chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+				resolve(tabs[0].url === chrome.extension.getURL('/popup.html'));
+			});
+		});
+	}
+
+	addInlineHTML() {
+		const dummy = document.createElement('div');
+		dummy.innerHTML = `<button class="open-popup" title="Open in separate window">&#8689;</button>`;
+		const button = dummy.children[0];
+		this.el.prepend(button);
+
+		button.addEventListener('click', () => {
+			chrome.runtime.sendMessage({ name: 'open-popup' });
+			window.close();
+		});
+	}
+
+	addPopupHTML() {
+		this._tabSelection = new TabSelection();
+		$('.tab-selection', this.scripts.el).append(this._tabSelection.el);
+	}
+
 	inject() {
 		this.injectCSS();
-		this.container.append(this.window.el);
 		this.isActive = true;
 	}
 
@@ -41,23 +77,9 @@ module.exports = class Gorilla {
 		this.container.prepend(style);
 	}
 
-	unremove() {
-		this.container.append(this.window.el);
-		this.isActive = true;
-	}
-
-	remove() {
-		this.window.el.remove();
-		this.isActive = false;
-	}
-
-	toggle() {
-		this.isActive ? this.remove() : this.unremove();
-	}
-
 	onScriptCreated(e) {
 		const data = e.detail;
-		storage.set(data.get('name'), {
+		storage.set(`scripts.${data.get('name')}`, {
 			script: encodeURIComponent(data.get('script')),
 			runAt: data.get('run-at')
 		});
@@ -66,25 +88,17 @@ module.exports = class Gorilla {
 
 	onScriptDeleted(e) {
 		const name = e.detail;
-		storage.delete(name);
+		storage.delete(`scripts.${name}`);
 		storage.save();
 	}
 
 	onScriptRun(e) {
-		const script = document.createElement('script');
-
-		const name = e.detail;
-		const userScript = decodeURIComponent(storage.get(name).script);
-		script.textContent = generateScript(name, userScript);
-
-		this.container.append(script);
-	}
-
-	onScriptSuccess(name) {
-		eventBus.emit('scriptSuccess', { name });
-	}
-
-	onScriptError(name, error) {
-		eventBus.emit('scriptError', { name, error });
+		chrome.runtime.sendMessage({
+			name: 'run-script',
+			scriptName: e.detail,
+			tabQuery: this._tabSelection && this._tabSelection.getSelectedTab()
+		}, response => {
+			eventBus.emit('scriptStatus', { name: e.detail, error: response.error });
+		});
 	}
 };

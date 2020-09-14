@@ -3,33 +3,34 @@
   "version": "1.0",
   "description": "",
   "manifest_version": 2,
-  "permissions": ["activeTab", "storage"],
-  "web_accessible_resources": ["node_modules/monaco-editor/min/*"],
+  "permissions": ["activeTab", "tabs", "storage"],
+  "content_security_policy": "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/; style-src 'self' 'unsafe-inline'; img-src 'self' data:",
   "icons": {
     "128": "icon.png"
   },
   "browser_action": {
     "name": "Gorilla",
-    "default_icon": "icon.png"
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background-script.js"]
+    "scripts": ["built/background/index.js"]
   },
   "content_scripts": [
     {
       "matches": ["https://*/*"],
       "run_at": "document_start",
-      "js": ["built/document-start.js"]
+      "js": ["built/content/document-start.js"]
     },
     {
       "matches": ["https://*/*"],
       "run_at": "document_end",
-      "js": ["built/document-end.js"]
+      "js": ["built/content/document-end.js"]
     },
     {
       "matches": ["https://*/*"],
       "run_at": "document_idle",
-      "js": ["built/document-idle.js"]
+      "js": ["built/content/document-idle.js"]
     }
   ]
 }

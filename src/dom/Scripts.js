@@ -1,51 +1,54 @@
-const { $, $$ } = require('./query-selector');
+const { $, $$ } = require('../helpers/query-selector');
 const eventBus = require('./event-bus');
 const storage = require('./storage');
-const generateScript = require('./generate-script');
-const loadMonaco = require('./load-monaco');
+const generateScript = require('../helpers/generate-script');
+const createEditor = require('./create-editor');
+const configureEditor = require('./configure-editor');
+const ExtensionData = require('./ExtensionData');
+const AceConfig = require('./AceConfig');
+const WindowConfig = require('./WindowConfig');
+const StartupJS = require('./StartupJS');
 
-const boilerplate = `function($, $$) {\n\t/* your code here */\n}`;
+const boilerplate = `function script($, $$) {\n\t/* your code here */\n}`;
 
 module.exports = class Scripts {
 	constructor() {
-		this.onDataCopy = this.onDataCopy.bind(this);
-		this.onDataEdit = this.onDataEdit.bind(this);
 		this.onScriptClick = this.onScriptClick.bind(this);
 
-		this.editor = null;
+		this.extensionData = new ExtensionData();
+		this.aceConfig = new AceConfig();
+		this.windowConfig = new WindowConfig();
+		this.startupJS = new StartupJS();
+
 		this.el = this.createEl();
+
+		$('.extension-data', this.el).append(this.extensionData.el);
+		$('.ace-config', this.el).append(this.aceConfig.el);
+		$('.window-config', this.el).append(this.windowConfig.el);
+		$('.startup-js', this.el).append(this.startupJS.el);
+
 		this.addEvents();
 
-		storage.loadOnce().then(() => this.updateStorage());
+		this.editor = createEditor($('.editor-container', this.el));
 
-		loadMonaco().then(monaco => {
-			this.editor = monaco.editor.create($('.monaco-container', this.el), {
-				value: boilerplate,
-				language: 'javascript',
-				theme: 'vs-dark'
-			});
-
-			const codePreview = $('.code-preview', this.el);
-			const nameInput = $('input[name="name"]', this.el);
-			const previewUserCode = () => {
-				const name = nameInput.value;
-				// careful...
-				const userScript = `<span class="userscript">${this.editor.getValue()}</span>`;
-				const script = generateScript(name, userScript, { indentLevel: 1 });
-				codePreview.innerHTML = script;
-			};
-			previewUserCode();
-			this.editor.onDidChangeModelContent(previewUserCode);
-
-			eventBus.on('resize', () => {
-				this.editor && this.el.classList.contains('editing') && this.editor.layout();
-			});
-		});
+		const codePreview = $('.preview-inner', this.el);
+		const nameInput = $('input[name="name"]', this.el);
+		const previewUserCode = () => {
+			const name = nameInput.value;
+			const userScript = `<span class="userscript">${this.editor.getValue()}</span>`;
+			const script = generateScript(userScript).trim();
+			codePreview.innerHTML = script;
+		};
+		previewUserCode();
+		this.editor.on('change', previewUserCode);
 	}
 
 	addEvents() {
-		$('.storage-copy', this.el).addEventListener('click', this.onDataCopy);
-		$('.storage-save', this.el).addEventListener('click', this.onDataEdit);
+		storage.loadOnce().then(() => storage.forEach('scripts', key => this.add(key)));
+		eventBus.on('storage-save', () => {
+			this.clear();
+			storage.forEach('scripts', key => this.add(key));
+		});
 
 		$('.scripts-list', this.el).addEventListener('click', this.onScriptClick);
 
@@ -58,89 +61,70 @@ module.exports = class Scripts {
 
 		$('form', this.el).addEventListener('submit', e => this.onSubmit(e));
 
-		eventBus.on('scriptSuccess', e => {
-			const { name } = e.detail;
-			const scriptItem = $(`.script-item[data-name="${name}"]`, this.el);
-			scriptItem.setAttribute('data-script-status', 'success');
-			$('.script-info', this.el).textContent = `No errors.`;
-		});
-		eventBus.on('scriptError', e => {
+		eventBus.on('scriptStatus', e => {
 			const { name, error } = e.detail;
 			const scriptItem = $(`.script-item[data-name="${name}"]`, this.el);
-			scriptItem.setAttribute('data-script-status', 'error');
-			$('.script-info', this.el).innerHTML = this.formatErrorMessage(name, error);
+			const scriptInfo = $('.script-info', this.el);
+
+			scriptItem.setAttribute('data-script-status', error ? 'error' : 'success');
+
+			const text = error ? this.formatErrorMessage(name, error) : 'No errors.';
+			scriptInfo.innerHTML = text;
+			scriptInfo.setAttribute('data-script-status', error ? 'error' : 'success');
 		});
 
-		eventBus.on('storage-set:done', () => this.updateStorageText());
+		eventBus.on('resize', () => {
+			this.editor && this.el.classList.contains('editing') && this.editor.resize();
+		});
 	}
 
 	createEl() {
 		const dummy = document.createElement('div');
 		dummy.innerHTML = `
 			<div class="scripts">
-				<div class="blur">
-					<details>
-						<summary>About</summary>
-						<p>Create, save, and run scripts on document start, document end, document idle, or on click.</p>
-						<h3><strong>What this bookmarklet does:</strong></h3>
-						<ul class="about-list">
-							<li>Creates an instance of this bookmarklet and stores under <strong>window._gorilla</strong>.</li>
-							<li>Creates a <strong>&lt;div id="gorilla"&gt;</strong> and prepends to <strong>document.body</strong>.</li>
-							<li>Loads the <a href="https://github.com/microsoft/monaco-editor">Monaco text editor</a> for creating and editing scripts.</li>
-						</ul>
-					</details>
-					<details>
-						<summary>View/Edit extension json</summary>
-						<button class="storage-copy">Copy</button>
-						<button class="storage-save">Save</button>
-						<p><small>(Note: scripts must be <a href="https://developer.mozilla.org/en-US/search?q=encodeuricomponent">URI encoded</a>.)</small></p>
-						<div class="storage-container">
-							<textarea></textarea>
-							<pre class="storage" contenteditable="true"></pre>
-						</div>
-					</details>
+				<div>
+					<h2>Scripts</h2>
+					<div class="tab-selection"></div>
 					<ul class="scripts-list">
 						<li class="script-item create">
 							<button class="script-button" title="Create new script">+</button>
 						</li>
 					</ul>
 					<p><small>Meta+click to run a script and close this window.</small></p>
-					<p><strong>Status of last script:</strong></p>
 					<pre class="script-info"> </pre>
 				</div>
 				<form>
-					<details>
-						<summary>How it works</summary>
-						<p>Write your code inside the function template. The function takes two arguments <strong>$</strong> and <strong>$$</strong>, which are similar to <strong>document.querySelector</strong> and <strong>document.querySelectorAll</strong>. These are variables are not defined on <strong>window</strong>.</p>
-						<p>Choose when to run the code. If running on extension click, a <strong>&lt;script&gt;</strong> tag will be created and injected into the page.</p>
-						<p>If "run at" is set to document start, end, or idle, the code will not have access to the <strong>window</strong> object.</p>
-					</details>
-					<details>
-						<summary>Preview injected script</summary>
-						<pre>&lt;script&gt;<span class="code-preview"></span>&lt;/script&gt;</pre>
-					</details>
-					<br/>
-					<p>
-						<label for="name"><strong>Script name: </strong></label>
-						<input id="name" name="name" type="text" autocomplete="off" required/>
-					</p>
-					<p class="label-row">
-						<label for="script"><strong>Code: </strong></label>
-						<span>
-							<button type="button" class="cancel">×</button>
-							<button type="submit">✓</button>
-						</span>
-					</p>
-					<div class="monaco-container"></div>
-					<br/>
-					<div>
-						<div><span class="middle"><strong>Run at: (<a href="https://developer.chrome.com/extensions/content_scripts#run_time">more here</a>)</strong></span></div>
-						<div><input type="radio" class="middle" name="run-at" value="click" id="run-at-click"><span class="middle">extension click</span></label></div>
-						<div><input type="radio" class="middle" name="run-at" value="document-start" id="run-at-document-start"><span class="middle">document start</span></label></div>
-						<div><input type="radio" class="middle" name="run-at" value="document-end" id="run-at-document-end"><span class="middle">document end</span></label></div>
-						<div><input type="radio" class="middle" name="run-at" value="document-idle" id="run-at-document-idle"><span class="middle">document idle</span></label></div>
-					</div>
+						<h2>Script editor</h2>
+						<p>
+							<button type="button" class="cancel" title="Cancel">&#x00D7;</button>
+							<button type="submit" title="Submit">&check;</button>
+						</p>
+						<details>
+							<summary>How it works</summary>
+							<p>Write your code inside the function template. The function takes two arguments <strong>$</strong> and <strong>$$</strong>, which are similar to <strong>document.querySelector</strong> and <strong>document.querySelectorAll</strong>. These are locally defined functions and are not defined on <strong>window</strong>.</p>
+							<p>Note: If "run at" is set to document start, end, or idle, the code will not have access to the <strong>window</strong> object.</p>
+						</details>
+						<details>
+							<summary>Preview</summary>
+							<pre class="preview"><span class="preview-inner"></span></pre>
+						</details>
+						<br/>
+						<p>
+							<label for="name"><strong>Name: </strong></label>
+							<input id="name" name="name" type="text" autocomplete="off" required/>
+						</p>
+						<div class="editor-container"></div>
+						<br/>
+						<div>
+							<div><span class="middle"><strong>Run at: </strong></span></div>
+							<div><input type="radio" class="middle" name="run-at" value="click" id="run-at-click"><span class="middle">button click</span></label></div>
+							<div><input type="radio" class="middle" name="run-at" value="document-start" id="run-at-document-start"><span class="middle">document start</span></label></div>
+							<div><input type="radio" class="middle" name="run-at" value="document-end" id="run-at-document-end"><span class="middle">document end</span></label></div>
+							<div><input type="radio" class="middle" name="run-at" value="document-idle" id="run-at-document-idle"><span class="middle">document idle</span></label></div>
+							<small>(<a href="https://developer.chrome.com/extensions/content_scripts#run_time">https://developer.chrome.com/extensions/content_scripts#run_time</a>)</small>
+						</div>
 				</form>
+				<div class="extension-data"></div>
 			</div>
 		`;
 		return dummy.children[0];
@@ -152,8 +136,8 @@ module.exports = class Scripts {
 			<li class="script-item" data-name="${name}">
 				<button class="script-button" data-action="run" title="Run script '${name}'">${name}</button>
 				<span class="actions">
-					<button data-action="delete" title="Delete script">×</button>
-					<button data-action="edit" title="Edit script">✎</button>
+					<button data-action="delete" title="Delete script">&#x00D7;</button>
+					<button data-action="edit" title="Edit script">&#x270E;</button>
 				</span>
 			</li>
 		`;
@@ -170,37 +154,23 @@ module.exports = class Scripts {
 	}
 
 	openEditing(text = boilerplate, name = '') {
-		const open = () => {
-			this.el.classList.add('editing');
-			this.el.setAttribute('data-edit-for', name);
+		this.el.classList.add('editing');
+		this.el.setAttribute('data-edit-for', name);
 
-			$('input[name="name"]', this.el).value = name;
-			const runAt = (name && storage.get(name).runAt) || 'click';
-			$(`input[id="run-at-${runAt}"]`).checked = true;
+		$('input[name="name"]', this.el).value = name;
+		const runAt = (name && storage.get(`scripts.${name}`).runAt) || 'click';
+		$(`input[id="run-at-${runAt}"]`).checked = true;
 
-			this.editor.layout();
-			text && this.editor.setValue(text);
-		};
-
-		this.editor ? open() : loadMonaco().then(open);
+		this.editor.resize();
+		text && this.editor.setValue(text, 1);
 	}
 
 	closeEditing(text) {
 		this.el.classList.remove('editing');
 		this.el.removeAttribute('data-edit-for');
 		$('input[name="name"]', this.el).value = '';
-		this.editor.layout();
-		text && this.editor.setValue(text);
-	}
-
-	updateStorage() {
-		this.clear();
-		storage.forEach((_, key) => this.add(key));
-		this.updateStorageText();
-	}
-
-	updateStorageText() {
-		$('.storage', this.el).textContent = storage.toJSONString(null, 2);
+		this.editor.resize();
+		text && this.editor.setValue(text, 1);
 	}
 
 	onSubmit(e) {
@@ -221,27 +191,6 @@ module.exports = class Scripts {
 		}
 	}
 
-	onDataCopy() {
-		const textarea = $('.storage-container textarea', this.el);
-		textarea.value = storage.toJSONString(null, 2);
-		textarea.select();
-		document.execCommand('copy');
-	}
-
-	onDataEdit() {
-		let json;
-		try {
-			json = JSON.parse($('.storage', this.el).textContent);
-		} catch(e) {
-			return alert('JSON is not valid.');
-		}
-
-		storage.clear();
-		storage.setJSON(json);
-		storage.save();
-		this.updateStorage();
-	}
-
 	onScriptClick(e) {
 		if (e.target === e.currentTarget) {
 			return;
@@ -260,7 +209,7 @@ module.exports = class Scripts {
 			this.edit(li);
 		} else if (action === 'run') {
 			eventBus.emit('scriptRun', li.getAttribute('data-name'));
-			e.metaKey && eventBus.emit('remove');
+			e.metaKey && eventBus.emit('close');
 		}
 	}
 
@@ -271,7 +220,7 @@ module.exports = class Scripts {
 
 	edit(scriptItem) {
 		const name = scriptItem.getAttribute('data-name');
-		const { script } = storage.get(name);
+		const { script } = storage.get(`scripts.${name}`);
 		this.openEditing(decodeURIComponent(script), name);
 	}
 
@@ -281,7 +230,7 @@ module.exports = class Scripts {
 		}
 
 		const lineNumber = this.getLineNumberFromStack(error.stack) - generateScript.codeBeginLine;
-		const code = decodeURIComponent(storage.get(name).script).split('\n');
+		const code = decodeURIComponent(storage.get(`scripts.${name}`).script).split('\n');
 		code[lineNumber - 1] = `<span class="error">${code[lineNumber - 1]}</span>`;
 		return `Error found on line ${lineNumber}:\n\n<span class="userscript">${code.join('\n')}</span>\n\n${error.stack}`;
 	}

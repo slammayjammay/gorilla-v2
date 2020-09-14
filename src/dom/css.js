@@ -1,66 +1,55 @@
 module.exports = `
+body {
+	margin: 0;
+}
+
 #gorilla {
 	font-family: monospace;
 	font-size: 12px;
+	padding: 20px;
 }
 
-.gorilla-window {
-	position: fixed;
-	z-index: 99999999999999999;
-	top: 0;
-	left: 0;
-	border-radius: 4px;
-	overflow: hidden;
-	box-shadow: rgba(0, 0, 0, 0.6) 0px 0px 16px;
-}
-
-#gorilla * {
+* {
 	font-family: inherit;
-	font-size: inherit;
 }
 
-#gorilla small {
-	font-size: smaller;
-}
-
-#gorilla p {
-	margin: 1em 0;
-}
-
-#gorilla button {
+button {
 	background: white;
 }
 
-#gorilla a {
-	color: -webkit-link;
+.middle {
+	vertical-align: middle;
 }
 
-#gorilla details {
+details {
 	padding: 4px;
-	margin: 0.1em 0;
+	margin: 0.5em 0;
 }
-#gorilla details[open] {
+details[open] {
 	border: 1px solid gray;
 	background: white;
 }
-#gorilla details summary {
+details summary {
 	display: inline-block;
 	cursor: pointer;
 	font-size: 1.2em;
 }
 
-#gorilla .bar {
-	background: #bbb;
-	cursor: move;
-	user-select: none;
-	padding: 4px;
-	display: block;
+.editor-container {
+	resize: vertical;
+	min-width: 400px;
+	min-height: 200px;
+	width: 100%;
 }
 
-#gorilla .storage-container {
+.tab-hrefs {
+	max-width: 300px;
+}
+
+.storage-container {
 	position: relative;
 }
-#gorilla .storage-container textarea {
+.storage-container textarea {
 	z-index: -1;
 	position: absolute;
 	top: 0;
@@ -69,88 +58,44 @@ module.exports = `
 	bottom: 0;
 }
 
-#gorilla .about-list {
-	display: block;
-	list-style-type: disc;
-	margin-block-start: 1em;
-	margin-block-end: 1em;
-	margin-inline-start: 0px;
-	margin-inline-end: 0px;
-	padding-inline-start: 40px;
-}
-
-#gorilla button {
+button {
 	border: 1px solid #8e8e8e;
 	border-radius: 4px;
 }
 
-#gorilla button:not([disabled]) {
+button:not([disabled]) {
 	cursor: pointer;
 }
 
-#gorilla .bar .control-button {
-	font-size: 1.4em;
-	display: inline-block;
-	vertical-align: middle;
-	padding: 0 6px;
-}
-
-#gorilla .bar .slider {
-	width: 26px;
-	height: 6px;
-	transform: rotate(-90deg);
-	cursor: ns-resize;
-	padding: 0;
-}
-
-#gorilla .resizeable {
-	position: relative;
-	resize: both;
-	overflow: scroll;
-	background: white;
-	min-width: 232px;
-	min-height: 160px;
-}
-
-#gorilla .resizeable {
-	width: 530px;
-	height: 320px;
-}
-
-#gorilla .scripts pre {
+.scripts pre {
 	padding: 8px;
 	background: black;
 	color: white;
 	white-space: pre-wrap;
 }
-#gorilla pre .userscript {
+.scripts .preview {
+	white-space: pre;
+	overflow: scroll;
+}
+pre .userscript {
 	color: yellow;
 }
-#gorilla pre .error {
+pre .error {
 	background: red;
 }
 
-#gorilla .scripts:not(.editing) form {
+.scripts:not(.editing) form {
+	display: none;
+}
+.scripts.editing > *:not(form) {
 	display: none;
 }
 
-#gorilla .scripts .blur {
-	padding: 16px;
-}
-
-#gorilla .scripts.editing .blur {
-	filter: blur(12px);
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-}
-
-#gorilla .scripts-list, #gorilla .item {
+.scripts-list, .item {
 	list-style: none;
 }
 
-#gorilla .scripts-list {
+.scripts-list {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, 150px);
 	grid-auto-rows: 1fr;
@@ -159,11 +104,11 @@ module.exports = `
 	padding: 0;
 }
 
-#gorilla .scripts .script-item {
+.scripts .script-item {
 	position: relative;
 }
 
-#gorilla .scripts .script-item .actions {
+.scripts .script-item .actions {
 	transform: scale(0.8);
 	opacity: 0;
 	transition: transform 0.13s, opacity 0.1s;
@@ -174,26 +119,26 @@ module.exports = `
 	flex-direction: column;
 }
 
-#gorilla .scripts .script-item .actions button {
+.scripts .script-item .actions button {
 	transform: scale(1);
 	transition: transform 0.1s;
 	padding: 0 4px;
 }
 
-#gorilla .scripts .script-item .actions button:hover {
+.scripts .script-item .actions button:hover {
 	transform: scale(1.2);
 }
 
-#gorilla .scripts .script-item .actions button:not(:first-child) {
+.scripts .script-item .actions button:not(:first-child) {
 	margin-top: 2px;
 }
 
-#gorilla .scripts .script-item:hover .actions {
+.scripts .script-item:hover .actions {
 	transform: scale(1);
 	opacity: 1;
 }
 
-#gorilla .scripts .script-item .script-button {
+.scripts .script-item .script-button {
 	position: relative;
 	overflow: hidden;
 	width: 100%;
@@ -207,7 +152,7 @@ module.exports = `
 	outline: none;
 }
 
-#gorilla .scripts .script-item .script-button::after {
+.scripts .script-item .script-button::after {
 	opacity: 0;
 	transition: opacity 0.2s;
 	pointer-events: none;
@@ -221,50 +166,46 @@ module.exports = `
 	background: radial-gradient(transparent, rgba(0, 0, 0, 0.2));
 }
 
-#gorilla .scripts .script-item:hover button::after {
+.scripts .script-item:hover button::after {
 	opacity: 1;
 }
 
-#gorilla .scripts .script-item[data-script-status="success"] .script-button { border: 2px solid #00ca00; }
-#gorilla .scripts .script-item[data-script-status="error"] .script-button { border: 2px dashed red; }
+.scripts .script-item[data-script-status="success"] .script-button { border: 2px solid #00ca00; }
+.scripts .script-item[data-script-status="error"] .script-button { border: 2px dashed red; }
 
-#gorilla .script-item.create {
+.script-item.create {
 	order: 1;
 }
-#gorilla .script-item.create .script-button {
+.script-item.create .script-button {
 	background: #00a200;
 }
 
-#gorilla .scripts form {
-	position: relative;
-	margin: auto;
-	padding: 40px;
+.scripts form {
+	backdrop-filter: blur(10px);
+	box-sizing: border-box;
 	background: rgba(255, 255, 255, 0.75);
+}
+.scripts form .scrollable {
+	overflow: scroll;
 	display: flex;
 	flex-direction: column;
-	box-sizing: border-box;
 }
 
-#gorilla .scripts form button {
+.scripts form button {
 	padding: 5px 10px;
 }
 
-#gorilla input {
+.script-info:not([data-script-status]) {
+	display: none;
+}
+
+input {
 	box-sizing: border-box;
 	border-radius: 5px;
 	border: 1px solid #333;
 	padding: 5px 10px;
 }
-
-#gorilla .scripts .label-row {
-	display: flex;
-	justify-content: space-between;
-	margin: 1em 0;
-}
-
-#gorilla .scripts form .monaco-container {
-	flex-grow: 1;
-	resize: none;
-	min-height: 200px;
+input[type="radio"] {
+	margin-top: 0;
 }
 `;

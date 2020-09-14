@@ -1,12 +1,8 @@
-const path = require('path');
-const DomScriptPlugin = require('./DomScriptPlugin');
+const configs = [];
 
-module.exports = {
-	mode: process.env.NODE_ENV || 'production',
-	entry: './src/dom/index.js',
-	output: {
-		path: `${__dirname}/extension/built`,
-		filename: 'dom.js'
-	},
-	plugins: [new DomScriptPlugin()]
-};
+module.exports = (process.env.TARGETS || '').split(',').forEach(name => {
+	const config = require(`./webpack-${name}.config.js`);
+	Array.isArray(config) ? configs.push(...config) : configs.push(config);
+});
+
+module.exports = configs;

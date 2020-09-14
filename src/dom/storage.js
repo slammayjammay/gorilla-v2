@@ -1,6 +1,7 @@
+const DelimitedMap = require('./DelimitedMap');
 const eventBus = require('./event-bus');
 
-class Storage extends Map {
+class Storage extends DelimitedMap {
 	constructor() {
 		super(...arguments);
 		this._loadOnce = null;
@@ -16,30 +17,20 @@ class Storage extends Map {
 
 	load() {
 		return new Promise(resolve => {
-			eventBus.on('storage-get:done', e => {
-				this.setJSON(JSON.parse(e.detail));
+			chrome.storage.local.get(data => {
+				this.json = data.gorilla;
 				resolve();
 			});
-			eventBus.emit('storage-get');
 		});
 	}
 
-	setJSON(json) {
-		Object.entries(json).forEach(([key, val]) => this.set(key, val));
-	}
-
 	save() {
-		eventBus.emit('storage-set', this.toJSONString());
-	}
-
-	toJSONString(...options) {
-		return JSON.stringify(this.toJSON(), ...options);
-	}
-
-	toJSON() {
-		const json = {};
-		this.forEach((val, key) => json[key] = val);
-		return json;
+		return new Promise(resolve => {
+			chrome.storage.local.set({ gorilla: this.json }, () => {
+				eventBus.emit('storage-save');
+				resolve();
+			});
+		});
 	}
 };
 
