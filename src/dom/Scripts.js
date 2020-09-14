@@ -155,7 +155,7 @@ module.exports = class Scripts {
 
 	openEditing(text = boilerplate, name = '') {
 		this.el.classList.add('editing');
-		this.el.setAttribute('data-edit-for', name);
+		$('form', this.el).setAttribute('data-edit-for', name);
 
 		$('input[name="name"]', this.el).value = name;
 		const runAt = (name && storage.get(`scripts.${name}`).runAt) || 'click';
@@ -167,7 +167,7 @@ module.exports = class Scripts {
 
 	closeEditing(text) {
 		this.el.classList.remove('editing');
-		this.el.removeAttribute('data-edit-for');
+		$('form', this.el).removeAttribute('data-edit-for');
 		$('input[name="name"]', this.el).value = '';
 		this.editor.resize();
 		text && this.editor.setValue(text, 1);
@@ -181,8 +181,8 @@ module.exports = class Scripts {
 		const isValid = data.get('name') && data.get('script'); // TODO
 
 		if (isValid) {
-			const name = data.get('name');
-			const editedItem = $(`.script-item[data-name="${name}"]`, this.el);
+			const editFor = $('form', this.el).getAttribute('data-edit-for');
+			const editedItem = $(`.script-item[data-name="${editFor}"]`, this.el);
 			editedItem && this.delete(editedItem);
 
 			this.add(name, data.get('script'));
