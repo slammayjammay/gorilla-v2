@@ -21,7 +21,7 @@ async function createWindow(tab) {
 		height: 540
 	};
 
-	if (data.gorilla.windowOptions) {
+	if (data.gorilla && data.gorilla.windowOptions) {
 		options = eval(`(${decodeURIComponent(data.gorilla.windowOptions)})()`);
 	}
 

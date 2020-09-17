@@ -18,7 +18,7 @@ class Storage extends DelimitedMap {
 	load() {
 		return new Promise(resolve => {
 			chrome.storage.local.get(data => {
-				this.json = data.gorilla;
+				this.json = data.gorilla || {};
 				resolve();
 			});
 		});
