@@ -10,6 +10,7 @@ module.exports = class ExtensionData {
 
 		$('.storage-copy', this.el).addEventListener('click', () => this.copyData());
 		$('.storage-save', this.el).addEventListener('click', () => this.editData());
+		$('.storage-download', this.el).addEventListener('click', () => this.downloadData());
 		$('.bytes-refresh', this.el).addEventListener('click', () => this.updateBytes());
 
 		storage.loadOnce().then(() => this.updateStorage());
@@ -27,6 +28,7 @@ module.exports = class ExtensionData {
 					<p>
 						<button class="storage-copy" title="Copy json">Copy</button>
 						<button class="storage-save" title="Save json">Save</button>
+						<button class="storage-download" title="Download json">Download</button>
 					</p>
 					<p><small>(Note: scripts must be <a href="https://developer.mozilla.org/en-US/search?q=encodeuricomponent">URI encoded</a>.)</small></p>
 					<div class="storage-container">
@@ -65,6 +67,15 @@ module.exports = class ExtensionData {
 		storage.json = json;
 		storage.save();
 		this.updateStorage();
+	}
+
+	downloadData() {
+		const a = document.createElement('a');
+		const data = storage.toString(null, 2);
+		const href = `data:text/json;charset=utf-8,${encodeURIComponent(data)}`;
+		a.setAttribute('href', href);
+		a.setAttribute('download', 'gorilla.json');
+		a.click();
 	}
 
 	updateStorage() {
