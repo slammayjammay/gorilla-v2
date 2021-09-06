@@ -30,7 +30,8 @@ details[open] {
 	background: white;
 }
 details summary {
-	display: inline-block;
+	width: min-content;
+	white-space: nowrap;
 	cursor: pointer;
 	font-size: 1.2em;
 }

@@ -9,12 +9,16 @@
     "build-popup": "TARGETS=popup npm run webpack",
     "build-content": "TARGETS=content npm run webpack",
     "build-background": "TARGETS=background npm run webpack",
-    "build-all": "NODE_ENV=production TARGETS=background,content,popup webpack"
+    "build-all": "NODE_ENV=production TARGETS=background,content,popup webpack",
+    "sign-and-zip": "npm run sign && npm run zip",
+    "sign": "export $(cat .env | xargs) && web-ext sign -s ./extension -a ./dist",
+    "zip": "web-ext build -s ./extension -a ./dist -n gorilla.zip"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "web-ext": "^6.3.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   }
