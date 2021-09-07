@@ -1,7 +1,9 @@
 # Gorilla
 
-Chrome extension to run web page scripts.
+Browser extension to run web page scripts.
 
-## How to install
+## Chrome
+Download the [zip file](https://github.com/slammayjammay/gorilla/releases/download/v1.2.1/gorilla.zip), unpack, go to chrome://extensions, then "Load unpacked".
 
-Download the [zip file](https://github.com/slammayjammay/gorilla/files/6059556/gorilla.zip) and unpack, then "Load unpacked" in Chrome extensions.
+## Firefox
+Download the [xpi file](https://github.com/slammayjammay/gorilla/releases/download/v1.2.1/gorilla-1.0-an+fx.xpi) and double click. Or go to about:addons, "Manage Your Extensions" gear icon > "Install Add-on From File...".
