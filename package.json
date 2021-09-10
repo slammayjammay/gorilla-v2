@@ -12,7 +12,7 @@
     "build-all": "NODE_ENV=production TARGETS=background,content,popup webpack",
     "sign-and-zip": "npm run sign && npm run zip",
     "sign": "export $(cat .env | xargs) && web-ext sign -s ./extension -a ./dist",
-    "zip": "web-ext build -s ./extension -a ./dist -n gorilla.zip"
+    "zip": "web-ext build -s ./extension -a ./dist -n gorilla.zip --overwrite-dest"
   },
   "keywords": [],
   "author": "",

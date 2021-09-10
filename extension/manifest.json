@@ -1,6 +1,6 @@
 {
   "name": "Gorilla",
-  "version": "1.0",
+  "version": "1.2.2",
   "description": "",
   "manifest_version": 2,
   "permissions": ["activeTab", "tabs", "storage", "https://*/*"],
