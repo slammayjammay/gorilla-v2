@@ -1,5 +1,5 @@
 class EventBus {
-	constructor(el = document.getElementById('gorilla')) {
+	constructor(el = document.documentElement) {
 		this.el = el;
 	}
 

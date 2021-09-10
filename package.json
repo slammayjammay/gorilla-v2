@@ -2,7 +2,7 @@
   "name": "Gorilla",
   "version": "1.2.1",
   "description": "Create, save, and run scripts in web pages.",
-  "main": "src/dom/main/index.js",
+  "main": "src/dom/index.js",
   "scripts": {
     "dev": "NODE_ENV=development TARGETS=background,content,popup webpack -w",
     "build": "webpack",

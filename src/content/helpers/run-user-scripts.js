@@ -8,20 +8,12 @@ module.exports = (runAt) => {
 
 		Object.entries(data.gorilla.scripts).forEach(([name, value]) => {
 			if (runAt === value.runAt) {
-				runScript(value.script);
+				runScript(name);
 			}
 		});
 	});
 };
 
-function runScript(encodedJS) {
-	const js = `(${decodeURIComponent(encodedJS)})(${$}, ${$$})`;
-
-	if (document.body) {
-		const script = document.createElement('script');
-		script.innerHTML = js;
-		(document.getElementById('gorilla') || document.body).append(script);
-	} else {
-		window.location = `javascript:${encodeURIComponent(js)}`;
-	}
+function runScript(name) {
+	chrome.runtime.sendMessage({ name: 'run-script', scriptName: name });
 }

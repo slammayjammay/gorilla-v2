@@ -43,7 +43,7 @@ module.exports = class Gorilla {
 	async isPopup() {
 		return new Promise(resolve => {
 			chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-				resolve(tabs[0].url === chrome.extension.getURL('/popup.html'));
+				resolve(tabs[0].url === chrome.runtime.getURL('/popup.html'));
 			});
 		});
 	}

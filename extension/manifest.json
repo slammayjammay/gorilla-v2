@@ -3,7 +3,7 @@
   "version": "1.0",
   "description": "",
   "manifest_version": 2,
-  "permissions": ["activeTab", "tabs", "storage"],
+  "permissions": ["activeTab", "tabs", "storage", "https://*/*"],
   "content_security_policy": "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/; style-src 'self' 'unsafe-inline'; img-src 'self' data:",
   "icons": {
     "128": "icon.png"
