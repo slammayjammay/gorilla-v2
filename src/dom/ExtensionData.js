@@ -24,11 +24,11 @@ module.exports = class ExtensionData {
 				<summary>Misc</summary>
 				<details>
 					<summary>View/Edit extension json</summary>
-					<p><strong><span class="bytes"></span></strong> bytes stored locally. <button class="bytes-refresh" title="refresh">&orarr;</button></p>
+					<p><strong><span class="bytes"></span></strong> bytes stored locally. <button class="button bytes-refresh" title="refresh">&orarr;</button></p>
 					<p>
-						<button class="storage-copy" title="Copy json">Copy</button>
-						<button class="storage-save" title="Save json">Save</button>
-						<button class="storage-download" title="Download json">Download</button>
+						<button class="button storage-copy" title="Copy json">Copy</button>
+						<button class="button storage-save" title="Save json">Save</button>
+						<button class="button storage-download" title="Download json">Download</button>
 					</p>
 					<p><small>(Note: scripts must be <a href="https://developer.mozilla.org/en-US/search?q=encodeuricomponent">URI encoded</a>.)</small></p>
 					<div class="storage-container">

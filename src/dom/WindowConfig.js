@@ -27,7 +27,7 @@ module.exports = class WindowConfig extends ConfigPanel {
 			<details>
 				<summary>Configure extension window</summary>
 				<p>This options object will be used when opening this extension in a separate window (see <a href="https://developer.chrome.com/extensions/windows#method-create">docs</a> for details).</p>
-				<p><button class="restore-default" title="Restore defaults"><small>restore defaults</small></button></p>
+				<p><button class="button restore-default" title="Restore defaults"><small>restore defaults</small></button></p>
 				<small class="save" data-saved="Saved." data-saving="Saving...">Saved.</small>
 				<div class="editor-container"></div>
 			</details>

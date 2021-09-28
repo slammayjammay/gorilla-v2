@@ -33,8 +33,8 @@ module.exports = class StartupJS extends ConfigPanel {
 				<summary>Startup JS</summary>
 				<p>Run this code when this extension window/popup is created.</p>
 				<p>
-					<button class="restore-default" title="Restore defaults"><small>restore defaults</small></button>
-					<button class="run" title="run"><small>run</small></button>
+					<button class="button restore-default" title="Restore defaults"><small>restore defaults</small></button>
+					<button class="button run" title="run"><small>run</small></button>
 				</p>
 				<small class="save" data-saved="Saved." data-saving="Saving...">Saved.</small>
 				<div class="editor-container"></div>

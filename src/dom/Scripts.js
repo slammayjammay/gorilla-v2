@@ -96,8 +96,8 @@ module.exports = class Scripts {
 				<form>
 						<h2>Script editor</h2>
 						<p>
-							<button type="button" class="cancel" title="Cancel">&#x00D7;</button>
-							<button type="submit" title="Submit">&check;</button>
+							<button type="button" class="button cancel" title="Cancel">&#x00D7;</button>
+							<button type="submit" class="button" title="Submit">&check;</button>
 						</p>
 						<details>
 							<summary>How it works</summary>

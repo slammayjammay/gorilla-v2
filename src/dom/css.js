@@ -7,6 +7,8 @@ body {
 	font-family: monospace;
 	font-size: 12px;
 	padding: 20px;
+	--cyan: #00caa2;
+	--purple: #ff00d3;
 }
 
 * {
@@ -15,6 +17,21 @@ body {
 
 button {
 	background: white;
+}
+button.button {
+	--hover-border: var(--cyan);
+	--active-border: var(--purple);
+	--hover-shadow: 0px 0px 6px 0px var(--hover-border);
+}
+button:not([disabled]) {
+	cursor: pointer;
+}
+.button:active {
+	--hover-border: var(--active-border);
+}
+.button:hover {
+	box-shadow: var(--hover-shadow);
+	border-color: var(--hover-border)
 }
 
 .middle {
@@ -62,10 +79,6 @@ details summary {
 button {
 	border: 1px solid #8e8e8e;
 	border-radius: 4px;
-}
-
-button:not([disabled]) {
-	cursor: pointer;
 }
 
 .scripts pre {

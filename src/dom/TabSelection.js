@@ -12,8 +12,8 @@ module.exports = class TabSelection {
 		dummy.innerHTML = `
 			<div>
 				<select class="tab-hrefs"></select>
-				<button class="last-active" title="Get last active tab">last active</button>
-				<button class="refresh" title="refresh">&orarr;</button>
+				<button class="button last-active" title="Get last active tab">last active</button>
+				<button class="button refresh" title="refresh">&orarr;</button>
 			</div>
 		`;
 		return dummy.children[0];
