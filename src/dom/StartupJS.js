@@ -44,7 +44,5 @@ module.exports = class StartupJS extends ConfigPanel {
 	}
 
 	run() {
-		const fn = this.constructor.getOption();
-		fn && eval(`(${fn})()`);
 	}
 };

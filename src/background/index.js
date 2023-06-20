@@ -33,7 +33,11 @@ async function createWindow(tab) {
 	};
 
 	if (data.gorilla && data.gorilla.windowOptions) {
-		options = eval(`(${decodeURIComponent(data.gorilla.windowOptions)})()`);
+		let json;
+		try {
+			json = JSON.parse(decodeURIComponent(data.gorilla.windowOptions));
+		} catch(e) {}
+		options = json || options;
 	}
 
 	chrome.windows.create({ ...options, url: 'popup.html' });

@@ -9,14 +9,12 @@ module.exports = class WindowConfig extends ConfigPanel {
 
 	static get editorCode() {
 		return formatCode.dedent(`
-			function configureWindow() {
-				return {
-					type: 'popup',
-					top: 40,
-					left: 20,
-					width: 730,
-					height: 540
-				};
+			{
+				"type": "popup",
+				"top": 40,
+				"left": 20,
+				"width": 730,
+				"height": 540
 			}
 		`).trim();
 	}

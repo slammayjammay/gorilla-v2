@@ -7,7 +7,7 @@ const configureEditor = require('./configure-editor');
 const ExtensionData = require('./ExtensionData');
 const AceConfig = require('./AceConfig');
 const WindowConfig = require('./WindowConfig');
-const StartupJS = require('./StartupJS');
+// const StartupJS = require('./StartupJS');
 
 const boilerplate = `function script($, $$) {\n\t/* your code here */\n}`;
 
@@ -18,14 +18,14 @@ module.exports = class Scripts {
 		this.extensionData = new ExtensionData();
 		this.aceConfig = new AceConfig();
 		this.windowConfig = new WindowConfig();
-		this.startupJS = new StartupJS();
+		// this.startupJS = new StartupJS();
 
 		this.el = this.createEl();
 
 		$('.extension-data', this.el).append(this.extensionData.el);
 		$('.ace-config', this.el).append(this.aceConfig.el);
 		$('.window-config', this.el).append(this.windowConfig.el);
-		$('.startup-js', this.el).append(this.startupJS.el);
+		// $('.startup-js', this.el).append(this.startupJS.el);
 
 		this.addEvents();
 

@@ -1,4 +1,8 @@
 module.exports = `
+.popup {
+	min-width: 540px;
+}
+
 body {
 	margin: 0;
 }
