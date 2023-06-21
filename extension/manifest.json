@@ -1,6 +1,6 @@
 {
   "name": "Gorilla V2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "manifest_version": 2,
   "permissions": ["activeTab", "tabs", "storage", "https://*/*"],
@@ -34,7 +34,7 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "gorilla-v2@slammayjammay.com"
+      "id": "gorilla-v2@scottosmckenzie.com"
     }
   }
 }

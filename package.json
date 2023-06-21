@@ -1,6 +1,6 @@
 {
   "name": "Gorilla V2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create, save, and run scripts in web pages.",
   "main": "src/dom/index.js",
   "scripts": {
