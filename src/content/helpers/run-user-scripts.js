@@ -8,12 +8,12 @@ module.exports = (runAt) => {
 
 		Object.entries(data.gorilla.scripts).forEach(([name, value]) => {
 			if (runAt === value.runAt) {
-				runScript(name);
+				runScript(name, runAt.replace(/-/g, '_'));
 			}
 		});
 	});
 };
 
-function runScript(name) {
-	chrome.runtime.sendMessage({ name: 'run-script', scriptName: name });
+function runScript(name, runAt) {
+	chrome.runtime.sendMessage({ name: 'run-script', scriptName: name, runAt });
 }

@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((request, sender, respond) => {
 				tabQuery = { id: sender.tab.id };
 			}
 
-			runScript(code, tabQuery).then(respond);
+			runScript(code, request.runAt, tabQuery).then(respond);
 		});
 		return true;
 	}
@@ -48,7 +48,7 @@ async function getScript(name) {
 	return decodeURIComponent(data.gorilla.scripts[name].script);
 }
 
-function runScript(code, tabQuery = { active: true, currentWindow: true }) {
+function runScript(code, runAt = 'document_idle', tabQuery = { active: true, currentWindow: true }) {
 	return new Promise(async resolve => {
 		code = generateScript(code);
 
@@ -60,11 +60,11 @@ function runScript(code, tabQuery = { active: true, currentWindow: true }) {
 		});
 
 		if (tabQuery.id) {
-			return chrome.tabs.executeScript(tabQuery.id, { code });
+			return chrome.tabs.executeScript(tabQuery.id, { code, runAt });
 		}
 
 		chrome.tabs.query(tabQuery || { active: true, currentWindow: true }, tabs => {
-			chrome.tabs.executeScript(tabs[0].id, { code });
+			chrome.tabs.executeScript(tabs[0].id, { code, runAt });
 		});
 	});
 }
