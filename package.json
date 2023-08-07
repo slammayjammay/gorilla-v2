@@ -1,6 +1,6 @@
 {
-  "name": "Gorilla V2",
-  "version": "1.0.1",
+  "name": "gorilla-v4",
+  "version": "1.0.2",
   "description": "Create, save, and run scripts in web pages.",
   "main": "src/dom/index.js",
   "scripts": {
@@ -12,8 +12,8 @@
     "build-all": "NODE_ENV=production TARGETS=background,content,popup webpack",
     "sign-and-zip": "npm run sign && npm run zip",
     "sign": "export $(cat .env | xargs) && web-ext sign -s ./extension -a ./dist",
-    "dist-zip": "web-ext build -s ./extension -a ./dist -n gorilla-v2.zip --overwrite-dest",
-    "dist-xpi": "web-ext build -s ./extension -a ./dist -n gorilla-v2.xpi --overwrite-dest",
+    "dist-zip": "web-ext build -s ./extension -a ./dist -n gorilla-v4.zip --overwrite-dest",
+    "dist-xpi": "web-ext build -s ./extension -a ./dist -n gorilla-v4.xpi --overwrite-dest",
     "zip": "npm run dist-zip && npm run dist-xpi"
   },
   "keywords": [],
